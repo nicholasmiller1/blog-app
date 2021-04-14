@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import BlogPage from "./blogPage";
 import LoginPage from "./loginPage";
 import firebase from "./firebase";
+import { AppBar, Toolbar, Button, Typography } from '@material-ui/core';
 
 function App() {
   const [currentUser, setCurrentUser] = useState();
@@ -10,39 +11,36 @@ function App() {
 
   return (
     <Router>
-      <div
-        style={{
-          width: "100%",
-          height: "50px",
-          backgroundColor: "#d7d7d7",
-          textAlign: "center",
-        }}
+      <AppBar
+        position="static"
+        style={{backgroundColor: "#d7d7d7"}}
       >
-        <h1>Blog App</h1>
-        <Link to="/login" style={{ float: "right" }}>
-          Login/Signup
-        </Link>
-        <Link to="/" style={{ float: "right" }}>
-          Blog
-        </Link>
-        <a
-          href="/"
-          style={{ float: "right" }}
-          onClick={() =>
-            firebase
-              .auth()
-              .signOut()
-              .then(() => {
-                console.log("Sign-out successful");
-              })
-              .catch((error) => {
-                console.log("Unable to sign out");
-              })
-          }
-        >
-          Sign Out
-        </a>
-      </div>
+        <Toolbar>
+          <Typography variant="h4" style={{ color: "black", margin: "10px 0", flexGrow: "1" }}>BLOG APP</Typography>
+          <Button to="/" component={Link}>
+            Blog
+          </Button>
+          <Button to="/login" component={Link}>
+            Login/Signup
+          </Button>
+          <Button
+            style={{ marginRight: "0px" }}
+            onClick={() =>
+              firebase
+                .auth()
+                .signOut()
+                .then(() => {
+                  console.log("Sign-out successful");
+                })
+                .catch((error) => {
+                  console.log("Unable to sign out");
+                })
+            }
+          >
+            Sign Out
+          </Button>
+        </Toolbar>
+      </AppBar>
 
       <Switch>
         <Route path="/login" exact>

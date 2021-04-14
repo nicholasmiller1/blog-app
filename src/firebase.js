@@ -1,13 +1,15 @@
 import firebase from 'firebase';
 import * as firebaseui from 'firebaseui';
 
+console.log(process.env.REACT_APP_APIKEY);
+
 var firebaseConfig = {
-    apiKey: "AIzaSyB3WNPn7pspn8ZLkpLZyFUHT0-d1J6u7vA",
-    authDomain: "authenticated-blog-app.firebaseapp.com",
-    projectId: "authenticated-blog-app",
-    storageBucket: "authenticated-blog-app.appspot.com",
-    messagingSenderId: "606170293718",
-    appId: "1:606170293718:web:6d1356f6903b2c167b7077"
+    apiKey: process.env.REACT_APP_APIKEY,
+    authDomain: process.env.REACT_APP_AUTHDOMAIN,
+    projectId: process.env.REACT_APP_PROJECTID,
+    storageBucket: process.env.REACT_APP_STORAGEBUCKET,
+    messagingSenderId: process.env.REACT_APP_MESSAGINGSENDERID,
+    appId: process.env.REACT_APP_APPID
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
