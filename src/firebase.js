@@ -13,6 +13,7 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const uiConfig = {
+    signInSuccessUrl: "./",
     signInOptions: [
         firebase.auth.EmailAuthProvider.PROVIDER_ID
     ]

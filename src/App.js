@@ -1,38 +1,58 @@
-import React from 'react';
-import {useState, useEffect} from 'react';
-import firebase, {displayAuthUi} from './firebase.js';
+import React, { useState } from "react";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import BlogPage from "./blogPage";
+import LoginPage from "./loginPage";
+import firebase from "./firebase";
 
 function App() {
-  const [data, setData] = useState();
-
-  useEffect(() => {
-    displayAuthUi("#firebase-authui")
-    firebase.firestore().collection("posts").get().then((response) => {
-      const arr = [];
-      response.forEach(res => arr.push(res.data()));
-      setData(arr);
-    });
-  }, [])
-
-  const handleClick = () => {
-    firebase.firestore().collection("posts").add({
-      userId: "test user 2",
-      text: "test content 2",
-      date: "04/06/2021"
-    })
-  }
+  const [currentUser, setCurrentUser] = useState();
+  firebase.auth().onAuthStateChanged((user) => setCurrentUser(user));
 
   return (
-    <div style={{ textAlign: 'center' }}>
-      {data !== undefined && data.map(post => 
-      <div style={{ width: "200px", backgroundColor: "#e7e7e7", borderRadius: "5px", padding: "15px", margin: "20px auto", boxShadow: "5px 10px #888888" }}>
-        <h1>{post.userId}</h1>
-        <p>{post.text}</p>
-        <p>{post.date}</p>
-      </div>)}
-      <div id="firebase-authui"></div>
-      <button onClick={handleClick}>Post</button>
-    </div>
+    <Router>
+      <div
+        style={{
+          width: "100%",
+          height: "50px",
+          backgroundColor: "#d7d7d7",
+          textAlign: "center",
+        }}
+      >
+        <h1>Blog App</h1>
+        <Link to="/login" style={{ float: "right" }}>
+          Login/Signup
+        </Link>
+        <Link to="/" style={{ float: "right" }}>
+          Blog
+        </Link>
+        <a
+          href="/"
+          style={{ float: "right" }}
+          onClick={() =>
+            firebase
+              .auth()
+              .signOut()
+              .then(() => {
+                console.log("Sign-out successful");
+              })
+              .catch((error) => {
+                console.log("Unable to sign out");
+              })
+          }
+        >
+          Sign Out
+        </a>
+      </div>
+
+      <Switch>
+        <Route path="/login" exact>
+          <LoginPage auth={currentUser} />
+        </Route>
+        <Route path="/" exact>
+          <BlogPage auth={currentUser} />
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 
