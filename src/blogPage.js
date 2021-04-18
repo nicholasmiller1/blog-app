@@ -98,12 +98,14 @@ const BlogPage = ({ auth }) => {
     }
 
     const currentDate = new Date();
+    console.log(currentDate);
+    console.log(currentDate.getMonth());
     const post = {
       userId: auth.uid,
       userName: auth.email,
       title: titleInput,
       text: contentInput,
-      date: `${currentDate.getMonth()}/${currentDate.getDate()}/${currentDate.getFullYear()}`,
+      date: `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`,
       likes: []
     };
     if (auth) {
