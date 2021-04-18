@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import firebase from "./firebase.js";
-import { TextField, Paper, Typography, Button, Icon } from "@material-ui/core";
+import { TextField, Paper, Typography, Button, Icon, Select, MenuItem } from "@material-ui/core";
 import profilePic from "./assets/profile-pic.jpg";
 
 const BlogPage = ({ auth }) => {
@@ -10,6 +10,7 @@ const BlogPage = ({ auth }) => {
   const [contentInput, setContentInput] = useState("");
   const [titleError, setTitleError] = useState(false);
   const [contentError, setContentError] = useState(false);
+  const [sort, setSort] = useState("likes");
 
   useEffect(() => {
     firebase
@@ -19,10 +20,72 @@ const BlogPage = ({ auth }) => {
       .then((response) => {
         const arr = [];
         response.forEach((res) => arr.push({...res.data(), id: res.id}));
-        arr.sort((p1, p2) => p2.likes.length - p1.likes.length)
+
+        switch(sort) {
+          case "likes": 
+            arr.sort((p1, p2) => p2.likes.length - p1.likes.length);
+            break;
+          case "unlikes":
+            arr.sort((p1, p2) => p1.likes.length - p2.likes.length);
+            break;
+          case "recent":
+            arr.sort((p1, p2) => {
+              p1 = p1.date.split("/");
+              p2 = p2.date.split("/");
+
+              if (p2[2] === p1[2]) {
+                if (p2[0] === p1[0]) {
+                  if (p2[1] === p1[1]) {
+                    return 0;
+                  } else if (p2[1] < p1[1]) {
+                    return -1;
+                  } else {
+                    return 1;
+                  }
+                } else if (p2[0] < p1[0]) {
+                  return -1;
+                } else {
+                  return 1;
+                }
+              } else if (p2[2] < p1[2]) {
+                return -1;
+              } else {
+                return 1;
+              }
+            });
+            break;
+          case "oldest":
+            arr.sort((p1, p2) => {
+              p1 = p1.date.split("/");
+              p2 = p2.date.split("/");
+
+              if (p2[2] === p1[2]) {
+                if (p2[0] === p1[0]) {
+                  if (p2[1] === p1[1]) {
+                    return 0;
+                  } else if (p2[1] < p1[1]) {
+                    return 1;
+                  } else {
+                    return -1;
+                  }
+                } else if (p2[0] < p1[0]) {
+                  return 1;
+                } else {
+                  return -1;
+                }
+              } else if (p2[2] < p1[2]) {
+                return 1;
+              } else {
+                return -1;
+              }
+            });
+            break;
+          default:
+            arr.sort((p1, p2) => p2.likes.length - p1.likes.length);
+        }
         setData(arr);
       });
-  }, [update]);
+  }, [update, sort]);
 
   const handlePost = () => {
     if (titleInput === undefined || titleInput === "") {
@@ -185,6 +248,15 @@ const BlogPage = ({ auth }) => {
             {auth && auth.uid === post.userId && <Button color="inherit" endIcon={<Icon>delete</Icon>} style={{float: "right", margin: "5px"}} onClick={(event) => handleDelete(post, event)}>Delete</Button>}
           </Paper>
         ))}
+
+        
+        <Typography variant="h5">Sort Posts</Typography> 
+        <Select label="Sort Criteria" variant="outlined" value={sort} onChange={(event) => setSort(event.target.value)}>
+          <MenuItem value="likes">Most Likes</MenuItem>
+          <MenuItem value="unlikes">Least Likes</MenuItem>
+          <MenuItem value="recent">Most Recent</MenuItem>
+          <MenuItem value="oldest">Oldest</MenuItem>
+        </Select>
     </div>
   );
 };
