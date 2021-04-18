@@ -11,6 +11,7 @@ var firebaseConfig = {
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
+console.log("Firebase initialized");
 
 const uiConfig = {
     signInSuccessUrl: "./",
