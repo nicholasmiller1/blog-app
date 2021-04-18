@@ -5,7 +5,7 @@ import profilePic from "./assets/profile-pic.jpg";
 
 const BlogPage = ({ auth }) => {
   const [data, setData] = useState();
-  const [update, setUpdate] = useState(true);
+  const [update, setUpdate] = useState(0);
   const [titleInput, setTitleInput] = useState("");
   const [contentInput, setContentInput] = useState("");
   const [titleError, setTitleError] = useState(false);
@@ -18,7 +18,8 @@ const BlogPage = ({ auth }) => {
       .get()
       .then((response) => {
         const arr = [];
-        response.forEach((res) => arr.push(res.data()));
+        response.forEach((res) => arr.push({...res.data(), id: res.id}));
+        arr.sort((p1, p2) => p2.likes.length - p1.likes.length)
         setData(arr);
       });
   }, [update]);
@@ -40,22 +41,43 @@ const BlogPage = ({ auth }) => {
       title: titleInput,
       text: contentInput,
       date: `${currentDate.getMonth()}/${currentDate.getDate()}/${currentDate.getFullYear()}`,
+      likes: []
     };
     if (auth) {
       firebase.firestore().collection("posts").add(post);
     }
-    setUpdate(!update);
+    setUpdate(update + 1);
   };
 
-  const handleDelete = () => {
-    // if (auth && auth.uid === post.userId) {
-    //   firebase.firestore().collection("posts").doc({post.id}).delete().then(() => {
-    //     console.log("Post successfully delete");
-    //   }).catch((error) => {
-    //     console.error("Error deleting post: ", error);
-    //   })
-    // }
-    setUpdate(!update);
+  const handleDelete = (post, event) => {
+    if (auth && auth.uid === post.userId) {
+      firebase.firestore().collection("posts").doc(post.id).delete().then(() => {
+        console.log("Post successfully delete");
+      }).catch((error) => {
+        console.error("Error deleting post: ", error);
+      })
+    }
+    setUpdate(update + 1);
+  }
+
+  const handleLike = (post, event) => {
+    if (auth) {
+      if (post.likes.includes(auth.uid)) {
+        firebase.firestore().collection("posts").doc(post.id).update({ likes: post.likes.filter(item => item !== auth.uid) }).then(() => {
+          console.log("Unlike update successful");
+        }).catch(error => {
+          console.error("Error unliking post: ", error);
+        });
+      } else {
+        firebase.firestore().collection("posts").doc(post.id).update({ likes: [...post.likes, auth.uid] }).then(() => {
+          console.log("Like update successful");
+        }).catch((error) => {
+          console.error("Error liking post: ", error);
+        });
+      }
+    }
+    setUpdate(update + 1);
+    console.log(update);
   }
 
   const handleTitle = (event) => {
@@ -117,6 +139,7 @@ const BlogPage = ({ auth }) => {
       {data !== undefined &&
         data.map((post) => (
           <Paper
+            key={post.id}
             elevation={3}
             style={{
               width: "60%",
@@ -158,11 +181,10 @@ const BlogPage = ({ auth }) => {
               </p>
             </div>
             <p style={{ textAlign: "left", margin: "10px" }}>{post.text}</p>
-            {auth && auth.uid === post.userId && <Button color="inherit" endIcon={<Icon>delete</Icon>} style={{float: "right", margin: "5px"}} onClick={handleDelete}>Delete</Button>}
+            <Button color="inherit" endIcon={auth && post.likes.includes(auth.uid) ? <Icon style={{color: "blue"}}>thumb_up</Icon> : <Icon>thumb_up</Icon>} style={{float: "left", margin: "5px"}} onClick={(event) => handleLike(post, event)}>{post.likes.length}</Button>
+            {auth && auth.uid === post.userId && <Button color="inherit" endIcon={<Icon>delete</Icon>} style={{float: "right", margin: "5px"}} onClick={(event) => handleDelete(post, event)}>Delete</Button>}
           </Paper>
         ))}
-
-      {/* <button onClick={handlePost}>Post</button> */}
     </div>
   );
 };

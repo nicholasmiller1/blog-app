@@ -16,7 +16,7 @@ function App() {
         style={{backgroundColor: "#d7d7d7"}}
       >
         <Toolbar>
-          <Typography variant="h4" style={{ color: "black", margin: "10px 0", flexGrow: "1" }}>BLOG APP</Typography>
+          <Typography variant="h4" style={{ color: "black", margin: "10px 0", flexGrow: "1" }}><Link to="/" style={{ textDecoration: "none", color: "black" }}>BLOG APP</Link></Typography>
           <Button to="/" component={Link}>
             Blog
           </Button>
